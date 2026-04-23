@@ -1,0 +1,23 @@
+{
+  "name": "staging-sentinel",
+  "version": "0.1.0",
+  "description": "CLI checks for staging k8s clusters",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^25.6.0",
+    "commander": "^14.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
+  },
+  "bin": {
+    "staging-sentinel": "./dist/index.js"
+  }
+}
