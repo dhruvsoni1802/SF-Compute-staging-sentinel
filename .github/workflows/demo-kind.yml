@@ -1,0 +1,45 @@
+# Public demo: real Kubernetes via kind, no repo secrets.
+# The sentinel check exits 1 (GPU parity) on purpose; the job stays green via continue-on-error.
+name: Demo (Kind — public CI, no secrets)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: demo-kind-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kind-parity-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: staging-sentinel-demo
+          wait: 120s
+
+      - name: Sanity check cluster
+        run: kubectl get nodes -o wide
+
+      - name: Run staging-sentinel (expect GPU parity failure)
+        continue-on-error: true
+        run: node dist/index.js check --config demo/sentinel.kind.yaml
+
+      - name: Demo finished (workflow green; see logs for sentinel exit 1)
+        run: echo "Kind demo complete — staging-sentinel ran; GPU check failure is intentional."

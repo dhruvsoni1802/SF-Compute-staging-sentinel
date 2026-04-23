@@ -1,0 +1,7 @@
+# Tuned for a single-node kind cluster in GitHub Actions.
+# Memory, CPU, and default namespace pass; GPU count fails (no nvidia.com/gpu).
+minGpuNodes: 1
+minMemoryGb: 1
+minCpuCores: 1
+requiredNamespaces:
+  - default

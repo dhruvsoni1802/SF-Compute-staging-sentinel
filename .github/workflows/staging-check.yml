@@ -1,11 +1,22 @@
-# Promotion gate: failing `staging-sentinel check` blocks the PR (exit 1).
-name: Staging parity
+# -----------------------------------------------------------------------------
+# Real staging / promotion gate — use YOUR cluster, not kind.
+#
+# 1. Add repo secret STAGING_KUBECONFIG (full kubeconfig for staging).
+# 2. Optionally add SENTINEL_CONFIG (multiline YAML) if sentinel.config.yaml
+#    is not committed.
+# 3. Uncomment pull_request (and adjust branches) so PRs are blocked when
+#    staging-sentinel check fails.
+#
+# This stub only runs on workflow_dispatch so public clones without secrets
+# do not get failing checks on every PR. Replace with your real cluster setup.
+# -----------------------------------------------------------------------------
+name: Staging parity (real cluster)
 
 on:
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
+  # pull_request:
+  #   branches:
+  #     - main
 
 concurrency:
   group: staging-parity-${{ github.workflow }}-${{ github.ref }}
@@ -33,7 +44,7 @@ jobs:
         run: |
           mkdir -p ~/.kube
           if [ -z "$KUBECONFIG_STAGING" ]; then
-            echo "::error::Add repo secret STAGING_KUBECONFIG (kubeconfig YAML for the staging cluster)."
+            echo "::error::Add repo secret STAGING_KUBECONFIG (kubeconfig YAML for the staging cluster), or use workflow only after configuring secrets."
             exit 1
           fi
           printf '%s\n' "$KUBECONFIG_STAGING" > ~/.kube/config
