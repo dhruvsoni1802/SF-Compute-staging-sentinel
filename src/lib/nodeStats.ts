@@ -18,6 +18,17 @@ export function memoryToBytes(quantity: string): number {
   return n * (mult[unit] ?? 1);
 }
 
+/** CPU allocatable → millicores (e.g. "8", "500m", "12.5"). */
+export function cpuToMillicores(quantity: string): number {
+  const s = quantity.trim();
+  if (s.endsWith("m")) {
+    const n = parseInt(s.slice(0, -1), 10);
+    return Number.isFinite(n) ? n : 0;
+  }
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? Math.round(n * 1000) : 0;
+}
+
 export function bytesToGi(bytes: number): number {
   return bytes / 1024 ** 3;
 }
@@ -38,6 +49,7 @@ export function isGpuNode(allocatable: Record<string, string> | undefined): bool
 export interface NodeInventory {
   gpuNodeCount: number;
   totalMemoryBytes: number;
+  totalCpuMillicores: number;
 }
 
 interface NodeListJson {
@@ -52,6 +64,7 @@ export function parseNodeInventory(json: string): NodeInventory {
 
   let gpuNodeCount = 0;
   let totalMemoryBytes = 0;
+  let totalCpuMillicores = 0;
 
   for (const node of items) {
     const alloc = node.status?.allocatable;
@@ -62,7 +75,11 @@ export function parseNodeInventory(json: string): NodeInventory {
     if (mem) {
       totalMemoryBytes += memoryToBytes(mem);
     }
+    const cpu = alloc?.cpu;
+    if (cpu) {
+      totalCpuMillicores += cpuToMillicores(cpu);
+    }
   }
 
-  return { gpuNodeCount, totalMemoryBytes };
+  return { gpuNodeCount, totalMemoryBytes, totalCpuMillicores };
 }

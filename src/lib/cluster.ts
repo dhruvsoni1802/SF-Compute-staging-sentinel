@@ -57,3 +57,7 @@ export async function connectCluster(context: string): Promise<ClusterConnection
 export function fetchNodesJson(contextName: string): string {
   return execKubectl(contextName, ["get", "nodes", "-o", "json"]);
 }
+
+export function fetchNamespacesJson(contextName: string): string {
+  return execKubectl(contextName, ["get", "namespaces", "-o", "json"]);
+}

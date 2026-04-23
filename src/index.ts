@@ -10,6 +10,7 @@ program.name("staging-sentinel").version("0.1.0");
 program
   .command("check")
   .option("-c, --context <context>", "kubectl context", "current")
-  .action((opts) => checkCommand({ context: opts.context }));
+  .option("--config <path>", "path to sentinel.config.yaml", "./sentinel.config.yaml")
+  .action((opts) => checkCommand({ context: opts.context, config: opts.config }));
 
 program.parse();

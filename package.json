@@ -16,7 +16,8 @@
     "chalk": "^5.6.2",
     "commander": "^14.0.3",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "yaml": "^2.8.3"
   },
   "bin": {
     "staging-sentinel": "./dist/index.js"

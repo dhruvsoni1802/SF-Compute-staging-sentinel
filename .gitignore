@@ -1,4 +1,7 @@
 node_modules/
 dist/
+
+# Local thresholds — use sentinel.config.example.yaml as the template
+sentinel.config.yaml
 *.js.map
 .DS_Store

@@ -1,0 +1,7 @@
+minGpuNodes: 2
+minMemoryGb: 256
+minCpuCores: 64
+requiredNamespaces:
+  - platform-infra
+  - monitoring
+  - default
