@@ -4,7 +4,7 @@ CLI that sanity-checks a staging Kubernetes cluster before you promote changes.
 
 **Demo (Kind on GitHub Actions):** the workflow below runs on every push/PR to `main` using a real in-runner cluster — no secrets. The sentinel run **fails the GPU check on purpose** (kind has no `nvidia.com/gpu` nodes); that shows the gate doing its job. The workflow still shows **green** so the repo badge stays healthy (`continue-on-error` on that step).
 
-[![Kind cluster demo](https://github.com/dhruvsoni1802/SF-Compute-staging-sentinel/actions/workflows/demo-kind.yml/badge.svg)](https://github.com/your-org/staging-sentinel/actions/workflows/demo-kind.yml)
+[![Kind cluster demo](https://github.com/dhruvsoni1802/SF-Compute-staging-sentinel/actions/workflows/demo-kind.yml/badge.svg)](https://github.com/dhruvsoni1802/SF-Compute-staging-sentinel/actions/workflows/demo-kind.yml)
 
 Replace `your-org` in the badge URL with your GitHub user or organization.
 
