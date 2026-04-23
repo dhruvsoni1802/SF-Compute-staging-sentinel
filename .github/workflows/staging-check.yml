@@ -1,0 +1,55 @@
+# Promotion gate: failing `staging-sentinel check` blocks the PR (exit 1).
+name: Staging parity
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: staging-parity-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - uses: azure/setup-kubectl@v4
+
+      - name: Configure kubectl
+        env:
+          KUBECONFIG_STAGING: ${{ secrets.STAGING_KUBECONFIG }}
+        run: |
+          mkdir -p ~/.kube
+          if [ -z "$KUBECONFIG_STAGING" ]; then
+            echo "::error::Add repo secret STAGING_KUBECONFIG (kubeconfig YAML for the staging cluster)."
+            exit 1
+          fi
+          printf '%s\n' "$KUBECONFIG_STAGING" > ~/.kube/config
+
+      - name: Prepare sentinel.config.yaml
+        env:
+          SENTINEL_CONFIG: ${{ secrets.SENTINEL_CONFIG }}
+        run: |
+          if [ -f sentinel.config.yaml ]; then
+            exit 0
+          fi
+          if [ -n "$SENTINEL_CONFIG" ]; then
+            printf '%s\n' "$SENTINEL_CONFIG" > sentinel.config.yaml
+          else
+            cp sentinel.config.example.yaml sentinel.config.yaml
+          fi
+
+      - name: Check staging parity
+        run: node dist/index.js check --config sentinel.config.yaml
