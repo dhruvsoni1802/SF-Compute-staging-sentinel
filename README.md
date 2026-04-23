@@ -1,30 +1,22 @@
 # staging-sentinel
 
-CLI that sanity-checks a staging Kubernetes cluster before you promote changes.
+Small **`kubectl`** helper: config in YAML, few checks on the cluster, exits 0 or 1. I use it so staging doesn’t quietly drift and we only find out in prod.
 
-**Demo (Kind on GitHub Actions):** the workflow below runs on every push/PR to `main` using a real in-runner cluster — no secrets. The sentinel run **fails the GPU check on purpose** (kind has no `nvidia.com/gpu` nodes); that shows the gate doing its job. The workflow still shows **green** so the repo badge stays healthy (`continue-on-error` on that step).
+## See it in Actions
 
-[![Kind cluster demo](https://github.com/dhruvsoni1802/SF-Compute-staging-sentinel/actions/workflows/demo-kind.yml/badge.svg)](https://github.com/dhruvsoni1802/SF-Compute-staging-sentinel/actions/workflows/demo-kind.yml)
+**Actions** → **“Demo (Kind — public CI, no secrets)”**. Kind comes up in CI, we run the check; GPU fails on purpose (no GPUs there). Job stays green anyway—`continue-on-error`—so the badge isn’t stuck red.
 
-Replace `your-org` in the badge URL with your GitHub user or organization.
+[![Demo](https://github.com/dhruvsoni1802/SF-Compute-staging-sentinel/actions/workflows/demo-kind.yml/badge.svg)](https://github.com/dhruvsoni1802/SF-Compute-staging-sentinel/actions/workflows/demo-kind.yml)
+
+## Run it
 
 ```bash
-npm install -g staging-sentinel
-staging-sentinel check
-staging-sentinel check --context my-staging --config ./sentinel.config.yaml
+npm ci && npm run build
+node dist/index.js check --config sentinel.config.yaml
 ```
 
-Needs `kubectl` configured.
+Needs **`kubectl`**. **`--context`** if you want a non-default context. Copy **`sentinel.config.example.yaml`** to **`sentinel.config.yaml`** (gitignored). No file → defaults in code.
 
-## Config
+## Real staging
 
-Copy `sentinel.config.example.yaml` to `sentinel.config.yaml` (or pass `--config`). If the file is missing, built-in defaults apply — no recompile needed to tune a file that exists.
-
-`minMemoryGb` is compared against total **allocatable** memory on all nodes, shown in **GiB** (same basis as Kubernetes node quantities). `minCpuCores` is compared against summed **allocatable** CPU (cores). `requiredNamespaces` must all exist in the cluster.
-
-## CI (GitHub Actions)
-
-- **`demo-kind.yml`** — public demo: [helm/kind-action](https://github.com/helm/kind-action) + `node dist/index.js check --config demo/sentinel.kind.yaml`. No secrets.
-- **`staging-check.yml`** — **template** for a real staging cluster: add **`STAGING_KUBECONFIG`**, uncomment **`pull_request`** in that file, and use **`workflow_dispatch`** until secrets exist so forks without credentials do not fail every PR.
-
-For the real gate, set **`STAGING_KUBECONFIG`** to the full kubeconfig for staging. Optional **`SENTINEL_CONFIG`**: multiline YAML for `sentinel.config.yaml` when the file isn’t in the repo (local `sentinel.config.yaml` is gitignored). If both are absent in that workflow, it copies `sentinel.config.example.yaml` for the run.
+**`staging-check.yml`**: add **`STAGING_KUBECONFIG`**, optionally **`SENTINEL_CONFIG`**, uncomment **`pull_request`** when ready. Starts as **`workflow_dispatch`** only. Branch protection is on you if merges should block on red.
